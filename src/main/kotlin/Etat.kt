@@ -4,16 +4,18 @@
  * Un Etat connait ses transitions possibles, c'est-à-dire les arcs de l'automate et s'il est final ou non
  * @param estFinal : Boolean
  */
-class Etat(estFinal : Boolean) {
+class Etat(nom : String, estFinal : Boolean) {
     /**
      * Suite est un dictionnaire qui associe un caractère à un état
      * Cela signifie que si on est dans l'état courant et qu'on reçoit le caractère associé à un état,
      * on passe à l'état associé
      */
+    private var nom : String
     private var suite : MutableMap<String, Etat> = mutableMapOf()
     private var estFinal : Boolean
 
     init {
+        this.nom = nom
         this.estFinal = estFinal
     }
 
@@ -45,7 +47,7 @@ class Etat(estFinal : Boolean) {
      */
     fun ajouterSuites(lettres : List<String>, etat : Etat) {
         for (lettre in lettres) {
-            this.ajouterSuite(lettre, etat)
+            this.ajouterSuite(lettre, etat) //On ajoute à la suite une transition pour chaque lettre
         }
     }
 
@@ -56,6 +58,13 @@ class Etat(estFinal : Boolean) {
      */
     fun transition(lettre : String) : Etat? {
         return this.suite[lettre] // On retourne l'état associé à la lettre, qui peut être null
+    }
+
+    /**
+     * Fonction permettant d'afficher le nom de l'état à l'aide de la fonction kotlin print
+     */
+    override fun toString(): String {
+        return this.nom
     }
 
 }

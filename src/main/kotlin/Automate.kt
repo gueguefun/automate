@@ -7,6 +7,7 @@
 class Automate(etatInitial : Etat) {
 
     private var etatInitial : Etat
+    private var chemin : MutableList<Etat> = mutableListOf(etatInitial)
 
     init {
         this.etatInitial = etatInitial
@@ -18,16 +19,51 @@ class Automate(etatInitial : Etat) {
      * @param mot est le mot à tester
      * @return true si l'automate peut lire le mot, false sinon
      */
-    fun testAutomate(mot : String) : Boolean {
-        if (mot.isEmpty()) return false // Si le mot est vide, on retourne false
+    fun testAutomate(mot : String){
+        if (mot.isEmpty()){ // Si le mot est vide, on ne fait pas tourner l'automate
+            println("Votre mot est vide !")
+            return
+        }
         var new_mot = mot // On crée une copie du mot afin de ne pas modifier le mot original tout en pouvant le parcourir
         var etatActuel = etatInitial // On initialise l'état actuel à l'état initial
         while (new_mot.isNotEmpty()) {
             val lettre = new_mot[0].toString() // On récupère la première lettre du mot
             new_mot = new_mot.substring(1) // On enlève la première lettre du mot à chaque itération afin de le parcourir dans son intégralité
-            etatActuel = etatActuel.transition(lettre) ?: return false // Si la lettre n'est pas dans la suite de l'état actuel, on retourne false
+            if (etatActuel.transition(lettre) == null) { // Si la lettre n'est pas dans la suite de l'état actuel, donc dans l'alphabet, on arrête l'automate
+                println("Le mot $mot n'est pas accepté par l'automate, car la lettre $lettre n'est pas acceptée par l'automate")
+                println("Le chemin parcouru est : ${lireChemins()}") // On affiche le chemin parcouru par l'automate
+                println("L'état d'arrêt est : ${etatArret()}") // On affiche l'état d'arrêt de l'automate
+                return
+            }
+            chemin.add(etatActuel) // On ajoute l'état actuel au chemin parcouru
         }
-        return etatActuel.etatFinal()
+        if (etatActuel.etatFinal()){
+            println("Le mot $mot est accepté par l'automate")
+        } else {
+            println("Le mot $mot n'est pas accepté par l'automate, car il ne s'arrête pas sur un état final")
+        }
+        println("Le chemin parcouru est : ${lireChemins()}") // On affiche le chemin parcouru par l'automate
+        println("L'état d'arrêt est : ${etatArret()}") // On affiche l'état d'arrêt de l'automate
+        return
+    }
+
+    /**
+     * La fonction lireChemins permet de lire le chemin parcouru par l'automate
+     */
+    fun lireChemins() : String {
+        var cheminString = ""
+        for (etat in chemin) {
+            cheminString += "$etat -> "
+        }
+        cheminString = cheminString.substring(0, cheminString.length - 4) // On retire la dernière flèche
+        return cheminString
+    }
+
+    /**
+     * La fonction etatArret permet de récupérer l'état d'arrêt de l'automate
+     */
+    fun etatArret() : String {
+        return chemin.last().toString()
     }
 
     /**
@@ -44,11 +80,11 @@ class Automate(etatInitial : Etat) {
          */
         fun automate1(mot : String) {
             // On crée les états
-            val e0 = Etat(false) // On choisit l'état final de chaque état, avec False pour non final et True pour final
-            val e1 = Etat(false)
-            val e2 = Etat(true)
-            val e3 = Etat(false)
-            val e4 = Etat(true)
+            val e0 = Etat("e0", false) // On choisit l'état final de chaque état, avec False pour non final et True pour final
+            val e1 = Etat("e1",false)
+            val e2 = Etat("e2", true)
+            val e3 = Etat("e3", false)
+            val e4 = Etat("e4", true)
 
             //On ajoute les suites des états, c'est-à-dire "l'architecture du mot"
             //On s'occupe de l'état e0
@@ -72,7 +108,6 @@ class Automate(etatInitial : Etat) {
             //On crée l'automate
             val automate = Automate(e0) // On choisit l'état initial de l'automate, qui ici est l'état e0
             val test = automate.testAutomate(mot) // On teste si l'automate peut lire le mot donné
-            println("L'automate peut-il lire le mot $mot ? $test") // On affiche le résultat
         }
 
         /**
@@ -81,9 +116,9 @@ class Automate(etatInitial : Etat) {
          */
         fun automate2(mot : String){
             // On crée les états
-            val e1 = Etat(false) // On choisit l'état final de chaque état, avec False pour non final et True pour final
-            val e2 = Etat(false)
-            val e3 = Etat(true)
+            val e1 = Etat("e1",false) // On choisit l'état final de chaque état, avec False pour non final et True pour final
+            val e2 = Etat("e2",false)
+            val e3 = Etat("e3",true)
 
             //On ajoute les suites des états, c'est-à-dire "l'architecture du mot"
             //On s'occupe de l'état e1
@@ -101,7 +136,6 @@ class Automate(etatInitial : Etat) {
             //On crée l'automate
             val automate = Automate(e1) // On choisit l'état initial de l'automate, qui ici est l'état e1
             val test = automate.testAutomate(mot) // On teste si l'automate peut lire le mot donné
-            println("L'automate peut-il lire le mot $mot ? $test") // On affiche le résultat
         }
 
         /**
@@ -110,11 +144,11 @@ class Automate(etatInitial : Etat) {
          */
         fun automate3(mot : String) {
             // On crée les états
-            val e1 = Etat(false) // On choisit l'état final de chaque état, avec False pour non final et True pour final
-            val e2 = Etat(false)
-            val e3 = Etat(false)
-            val e4 = Etat(true)
-            val e5 = Etat(false)
+            val e1 = Etat("e1",false) // On choisit l'état final de chaque état, avec False pour non final et True pour final
+            val e2 = Etat("e2",false)
+            val e3 = Etat("e3",false)
+            val e4 = Etat("e4",true)
+            val e5 = Etat("e5",false)
 
             //On ajoute les suites des états, c'est-à-dire "l'architecture du mot"
             //On s'occupe de l'état e1
@@ -137,7 +171,6 @@ class Automate(etatInitial : Etat) {
             //On crée l'automate
             val automate = Automate(e1) // On choisit l'état initial de l'automate, qui ici est l'état e1
             val test = automate.testAutomate(mot) // On teste si l'automate peut lire le mot donné
-            println("L'automate peut-il lire le mot $mot ? $test") // On affiche le résultat
         }
 
         /**
@@ -146,9 +179,9 @@ class Automate(etatInitial : Etat) {
          */
         fun automate4_1(mot : String){
             //On crée les états
-            val e0 = Etat(false) // On choisit l'état final de chaque état, avec False pour non final et True pour final
-            val e1 = Etat(false)
-            val e2 = Etat(true)
+            val e0 = Etat("e0",false) // On choisit l'état final de chaque état, avec False pour non final et True pour final
+            val e1 = Etat("e1",false)
+            val e2 = Etat("e2",true)
 
             //On ajoute les suites des états, c'est-à-dire "l'architecture du mot"
             //On s'occupe de l'état e0
@@ -166,7 +199,6 @@ class Automate(etatInitial : Etat) {
             //On crée l'automate
             val automate = Automate(e0) // On choisit l'état initial de l'automate, qui ici est l'état e0
             val test = automate.testAutomate(mot) // On teste si l'automate peut lire le mot donné
-            println("L'automate peut-il lire le mot $mot ? $test") // On affiche le résultat
         }
 
         /**
@@ -175,8 +207,8 @@ class Automate(etatInitial : Etat) {
          */
         fun automate4_2(mot : String){
             //On crée les états
-            val e0 = Etat(false) // On choisit l'état final de chaque état, avec False pour non final et True pour final
-            val e1 = Etat(true)
+            val e0 = Etat("e0",false) // On choisit l'état final de chaque état, avec False pour non final et True pour final
+            val e1 = Etat("e1",true)
 
             //On ajoute les suites des états, c'est-à-dire "l'architecture du mot"
             //On s'occupe de l'état e0
@@ -190,7 +222,6 @@ class Automate(etatInitial : Etat) {
             //On crée l'automate
             val automate = Automate(e0) // On choisit l'état initial de l'automate, qui ici est l'état e0
             val test = automate.testAutomate(mot) // On teste si l'automate peut lire le mot donné
-            println("L'automate peut-il lire le mot $mot ? $test") // On affiche le résultat
             
         }
 
@@ -200,13 +231,13 @@ class Automate(etatInitial : Etat) {
          */
         fun automate5(mot : String){
             //On crée les états
-            val e0 = Etat(false) // On choisit l'état final de chaque état, avec False pour non final et True pour final
-            val h1 = Etat(false)
-            val h2 = Etat(false)
-            val h = Etat(false)
-            val m1 = Etat(false)
-            val m2 = Etat(false)
-            val m = Etat(true)
+            val e0 = Etat("e0",false) // On choisit l'état final de chaque état, avec False pour non final et True pour final
+            val h1 = Etat("h1",false)
+            val h2 = Etat("h2",false)
+            val h = Etat("h",false)
+            val m1 = Etat("m1",false)
+            val m2 = Etat("m2",false)
+            val m = Etat("m",true)
 
             //On ajoute les suites des états, c'est-à-dire "l'architecture du mot"
             //On s'occupe de l'état e0
@@ -231,7 +262,6 @@ class Automate(etatInitial : Etat) {
             //On crée l'automate
             val automate = Automate(e0) // On choisit l'état initial de l'automate, qui ici est l'état e0
             val test = automate.testAutomate(mot) // On teste si l'automate peut lire le mot donné
-            println("L'automate peut-il lire le mot $mot ? $test") // On affiche le résultat
         }
 
         /**
@@ -240,10 +270,10 @@ class Automate(etatInitial : Etat) {
          */
         fun automate6_1(mot : String){
             //On crée les états
-            val e0 = Etat(false)
-            val e1 = Etat(false)
-            val e2 = Etat(false)
-            val e3 = Etat(true)
+            val e0 = Etat("e0",false)
+            val e1 = Etat("e1",false)
+            val e2 = Etat("e2",false)
+            val e3 = Etat("e3",true)
 
             //On ajoute les suites des états, c'est-à-dire "l'architecture du mot"
             //On s'occupe de l'état e0
@@ -262,12 +292,13 @@ class Automate(etatInitial : Etat) {
             e2.ajouterSuites(listOf("2", "5", "8"), e1) // L'état e2 peut lire les chiffres 2, 5 et 8, qui font passer l'automate à l'état e1
 
             //On s'occupe de l'état e3
+            e3.ajouterSuites(listOf("0", "3", "6", "9"), e3) // L'état e3 peut lire les chiffres 0, 3, 6 et 9, qui font passer l'automate à l'état e3
+            e3.ajouterSuites(listOf("1", "4", "7"), e1) // L'état e3 peut lire les chiffres 1, 4 et 7, qui font passer l'automate à l'état e1
             e3.ajouterSuites(listOf("2", "5", "8"), e2) // L'état e3 peut lire les chiffres 2, 5 et 8, qui font passer l'automate à l'état e2
 
             //On crée l'automate
             val automate = Automate(e0) // On choisit l'état initial de l'automate, qui ici est l'état e0
             val test = automate.testAutomate(mot) // On teste si l'automate peut lire le mot donné
-            println("L'automate peut-il lire le mot $mot ? $test") // On affiche le résultat
 
         }
 
@@ -277,9 +308,9 @@ class Automate(etatInitial : Etat) {
          */
         fun automate6_2(mot : String){
             //On crée les états
-            val e0  = Etat(false)
-            val e1  = Etat(false)
-            val e2  = Etat(true)
+            val e0  = Etat("e0",false)
+            val e1  = Etat("e1",false)
+            val e2  = Etat("e2",true)
 
             //On ajoute les suites des états, c'est-à-dire "l'architecture du mot"
             //On s'occupe de l'état e0
@@ -297,7 +328,6 @@ class Automate(etatInitial : Etat) {
             //On crée l'automate
             val automate = Automate(e0) // On choisit l'état initial de l'automate, qui ici est l'état e0
             val test = automate.testAutomate(mot) // On teste si l'automate peut lire le mot donné
-            println("L'automate peut-il lire le mot $mot ? $test") // On affiche le résultat
         }
 
     }
